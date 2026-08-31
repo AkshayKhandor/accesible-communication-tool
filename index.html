@@ -1,0 +1,1133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MyVoice — Communicate & Learn</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F6F3EC; --panel:#FFF; --ink:#262A28; --soft:#5B6360;
+  --teal:#3E7C82; --teal-dk:#244C50; --lav:#8574A1; --sand:#EADFC5;
+  --coral:#B5654A; --green:#3F9142; --line:#E3DDCC; --r:20px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);min-height:100vh;
+  font-family:"Atkinson Hyperlegible","Segoe UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+
+nav{padding:12px 18px;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;
+  background:var(--panel);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.brand{display:flex;align-items:center;gap:10px}
+.mark{width:36px;height:36px;border-radius:11px;flex:none;display:flex;align-items:center;justify-content:center;
+  font-size:18px;background:linear-gradient(135deg,var(--teal),var(--teal-dk))}
+.tabs{display:flex;gap:5px;background:var(--sand);padding:4px;border-radius:999px}
+.tabs button{border:none;background:transparent;padding:9px 15px;border-radius:999px;font-family:inherit;
+  font-weight:700;font-size:.9rem;cursor:pointer;color:var(--soft)}
+.tabs button.on{background:var(--teal);color:#fff}
+.tabs button:focus-visible,.btn:focus-visible{outline:3px solid var(--teal-dk);outline-offset:2px}
+
+main{padding:18px 14px 70px;max-width:1140px;margin:0 auto}
+.page{display:none}.page.on{display:block}
+.panel{background:var(--panel);border-radius:var(--r);padding:18px;border:1px solid var(--line)}
+h2{margin:0 0 12px;font-size:1.05rem}
+.sub{color:var(--soft);font-size:.85rem;font-weight:400}
+.btn{border:1.5px solid var(--line);background:#fff;color:var(--ink);padding:11px 17px;border-radius:12px;
+  font-family:inherit;font-weight:700;cursor:pointer;font-size:.92rem;touch-action:manipulation}
+.btn:hover{border-color:var(--teal);color:var(--teal-dk)}
+.btn.pri{background:var(--teal);color:#fff;border-color:var(--teal)}
+.btn.pri:hover{background:var(--teal-dk)}
+.btn:disabled{opacity:.45;cursor:default}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+/* AAC board */
+#grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:12px}
+.need{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;min-height:118px;
+  border-radius:18px;border:none;cursor:pointer;color:#fff;font-family:inherit;font-weight:700;font-size:1rem;
+  box-shadow:0 2px 0 rgba(0,0,0,.08);transition:transform .12s;touch-action:manipulation}
+.need .em{font-size:2rem}
+.need:active,.need.fire{transform:scale(.95)}
+.need:focus-visible{outline:4px solid var(--teal-dk);outline-offset:3px}
+.c-body{background:var(--teal)}.c-urg{background:var(--coral)}.c-feel{background:var(--lav)}
+body.big .need{min-height:142px;font-size:1.2rem}body.big .need .em{font-size:2.6rem}
+.row{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin-top:15px;padding-top:14px;
+  border-top:1px dashed var(--line);font-size:.88rem;color:var(--soft)}
+.row label{display:flex;align-items:center;gap:7px}
+
+/* Learn */
+.learn-wrap{display:grid;grid-template-columns:1fr 300px;gap:18px}
+@media(max-width:900px){.learn-wrap{grid-template-columns:1fr}}
+.stage{display:flex;flex-direction:column;align-items:center;gap:13px}
+.legend-line{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;font-size:.83rem;color:var(--soft)}
+.legend-line span{display:flex;align-items:center;gap:6px}
+.swatch{width:14px;height:14px;border-radius:50%;display:inline-block}
+.canvas-stack{position:relative;width:min(86vw,340px);height:min(86vw,340px);border-radius:24px;
+  overflow:hidden;background:#fff;border:2px solid var(--line);touch-action:none;cursor:crosshair}
+.canvas-stack canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+/* Only the ink layer receives touches; the guide and pen layers sit above/below
+   purely for display, so they must not intercept pointer events. */
+.canvas-stack #c-ink{pointer-events:auto;touch-action:none}
+.big-label{font-size:2.6rem;font-weight:700;color:var(--teal-dk);line-height:1}
+.step-note{font-weight:700;color:var(--soft);min-height:22px;text-align:center;font-size:.92rem}
+.fb{min-height:26px;font-weight:700;text-align:center}
+.fb.good{color:var(--green)}.fb.try{color:var(--coral)}
+.ctrls{display:flex;flex-wrap:wrap;gap:9px;justify-content:center}
+.strip{display:flex;flex-wrap:wrap;gap:5px;justify-content:center;max-width:340px}
+.strip button{width:33px;height:33px;border-radius:9px;border:1.5px solid var(--line);background:#fff;
+  font-family:inherit;font-weight:700;cursor:pointer;font-size:.88rem;position:relative}
+.strip button.cur{border-color:var(--teal);color:var(--teal-dk);border-width:2.5px}
+.strip button.done{background:var(--green);border-color:var(--green);color:#fff}
+.side h2{margin-bottom:8px}
+.progbar{background:var(--sand);border-radius:999px;height:11px;overflow:hidden;margin:6px 0 4px}
+.progfill{height:100%;background:var(--green);border-radius:999px;transition:width .45s}
+.stat{font-size:1.7rem;font-weight:700;color:var(--teal-dk)}
+.mini{color:var(--soft);font-size:.84rem}
+.tips{font-size:.85rem;color:var(--soft);line-height:1.55;margin:10px 0 0;padding-left:17px}
+.tips li{margin-bottom:5px}
+
+/* Gesture */
+.cam{position:relative;border-radius:16px;overflow:hidden;background:#101413;aspect-ratio:4/3;max-width:460px}
+.cam video,.cam canvas{position:absolute;inset:0;width:100%;height:100%}
+.cam video{transform:scaleX(-1);object-fit:cover}.cam canvas{transform:scaleX(-1)}
+.gread{margin-top:13px;display:flex;align-items:center;gap:13px;flex-wrap:wrap}
+.ring{width:50px;height:50px;border-radius:50%;border:5px solid var(--line);position:relative;flex:none}
+.ring .fl{position:absolute;inset:-5px;border-radius:50%;border:5px solid var(--teal);clip-path:inset(0 100% 0 0)}
+.glist{display:grid;grid-template-columns:1fr 1fr;gap:7px 15px;margin-top:15px;font-size:.86rem}
+.tog{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;padding-top:13px;border-top:1px dashed var(--line)}
+.sw{position:relative;width:46px;height:26px;flex:none}
+.sw input{opacity:0;width:0;height:0}
+.sl{position:absolute;inset:0;background:var(--line);border-radius:999px;cursor:pointer;transition:.15s}
+.sl:before{content:"";position:absolute;height:20px;width:20px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.15s}
+.sw input:checked+.sl{background:var(--teal)}
+.sw input:checked+.sl:before{transform:translateX(20px)}
+.cbtns{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}
+.cbtns button{font-family:inherit;font-weight:700;font-size:.76rem;padding:8px 11px;border-radius:10px;
+  border:1.5px solid var(--line);background:#fff;cursor:pointer}
+.pill{font-size:.7rem;color:var(--soft);margin-left:3px}
+.bars .b{margin-bottom:10px}
+.bars .bl{display:flex;justify-content:space-between;font-size:.84rem;margin-bottom:3px}
+.bt{background:var(--sand);border-radius:999px;height:9px;overflow:hidden}
+.bf{height:100%;background:var(--teal);border-radius:999px;transition:width .4s}
+#log{list-style:none;margin:0;padding:0;font-size:.84rem}
+#log li{padding:6px 0;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;color:var(--soft)}
+.two{display:grid;grid-template-columns:2fr 1fr;gap:18px}
+@media(max-width:900px){.two{grid-template-columns:1fr}}
+.hide{display:none!important}
+details{margin-top:16px;font-size:.85rem;color:var(--soft)}
+summary{cursor:pointer;font-weight:700;color:var(--teal-dk)}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="brand"><div class="mark">🗣️</div><strong>MyVoice</strong></div>
+  <div class="tabs">
+    <button id="t-talk" class="on">👆 Communicate</button>
+    <button id="t-num">🔢 Numbers</button>
+    <button id="t-let">🔤 Letters</button>
+    <button id="t-ges">✋ Gestures</button>
+  </div>
+</nav>
+
+<main>
+
+<!-- ============ COMMUNICATE ============ -->
+<section id="p-talk" class="page on">
+  <div class="two">
+    <div class="panel">
+      <h2>What do you need? <span class="sub">tap a card to speak</span></h2>
+      <div id="grid"></div>
+      <div class="row">
+        <label><input type="checkbox" id="bigtext"> Bigger cards</label>
+        <label>Voice speed <input type="range" id="rate" min="0.5" max="1.3" step="0.1" value="0.9"></label>
+        <button class="btn" id="clearlog">Clear history</button>
+      </div>
+    </div>
+    <aside class="panel">
+      <h2>Usage insights <span class="sub">this session</span></h2>
+      <div style="display:flex;gap:22px;margin-bottom:14px">
+        <div><div class="stat" id="s-total">0</div><div class="mini">requests</div></div>
+        <div><div class="stat" id="s-top">—</div><div class="mini">most needed</div></div>
+      </div>
+      <div class="bars" id="bars"><p class="mini">Nothing recorded yet.</p></div>
+      <h2 style="margin-top:20px">Recent</h2>
+      <ul id="log"><li class="mini">No activity yet.</li></ul>
+    </aside>
+  </div>
+</section>
+
+<!-- ============ NUMBERS / LETTERS (shared markup, one at a time) ============ -->
+<section id="p-learn" class="page">
+  <div class="learn-wrap">
+    <div class="panel stage">
+      <div class="big-label" id="l-char">A</div>
+      <div class="step-note" id="l-step">Press “Watch me” to see how it’s written</div>
+
+      <div class="canvas-stack">
+        <canvas id="c-guide" width="360" height="360"></canvas>
+        <canvas id="c-ink" width="360" height="360"></canvas>
+        <canvas id="c-pen" width="360" height="360"></canvas>
+      </div>
+
+      <div class="legend-line">
+        <span><i class="swatch" style="background:var(--teal)"></i>next dot</span>
+        <span><i class="swatch" style="background:var(--green)"></i>done</span>
+        <span><i class="swatch" style="background:var(--sand)"></i>later</span>
+      </div>
+
+      <div class="fb" id="l-fb"></div>
+
+      <div class="ctrls">
+        <button class="btn pri" id="b-watch">👀 Watch me</button>
+        <button class="btn" id="b-say">🔊 Say it</button>
+        <button class="btn" id="b-clear">🧹 Start over</button>
+      </div>
+      <div class="ctrls">
+        <button class="btn" id="b-prev">← Back</button>
+        <button class="btn" id="b-next">Next →</button>
+      </div>
+
+      <div class="strip" id="l-strip"></div>
+    </div>
+
+    <aside class="panel side">
+      <h2>Progress</h2>
+      <div class="progbar"><div class="progfill" id="l-prog" style="width:0%"></div></div>
+      <div class="mini"><span id="l-done">0</span> of <span id="l-all">26</span> finished</div>
+
+      <h2 style="margin-top:20px">How to use it</h2>
+      <ol class="tips">
+        <li><b>Watch me</b> — a pen shows the stroke, slowly.</li>
+        <li><b>Trace</b> — drag from dot <b>1</b> to <b>2</b> to <b>3</b>… with your finger.</li>
+        <li>Dots turn <b style="color:var(--green)">green</b> as you reach them.</li>
+        <li>Your line turns <b style="color:#C08040">amber</b> if you wander off, and an arrow points back to the next dot.</li>
+        <li>Out of order? It tells you which dot to go to instead — nothing is erased.</li>
+        <li>Only <b>one set of dots</b> shows at a time, so the numbers never clash.</li>
+        <li>Finish them and the next set appears — lift your finger and start at <b>1</b> again.</li>
+      </ol>
+
+      <details>
+        <summary>For teachers / parents</summary>
+        <p>Order matters here: dots must be hit in sequence, so the child learns
+        correct stroke direction, not just the finished shape. Corrections are
+        redirections, never rejections — going off-path or out of order never
+        erases work, resets progress, or shows an error. The app simply names
+        the next dot to aim for. Nothing is graded or timed.</p>
+      </details>
+    </aside>
+  </div>
+</section>
+
+<!-- ============ GESTURES ============ -->
+<section id="p-ges" class="page">
+  <div class="two">
+    <div class="panel">
+      <h2>Show a hand sign <span class="sub">hold steady ~1 second</span></h2>
+      <div class="cam">
+        <video id="vid" playsinline muted></video>
+        <canvas id="ov"></canvas>
+      </div>
+      <div class="gread">
+        <div class="ring"><div class="fl" id="hold"></div></div>
+        <div>
+          <div style="font-weight:700" id="g-name">No hand detected</div>
+          <div class="mini" id="g-hint">Turn on the camera to begin</div>
+        </div>
+        <button class="btn" id="b-cam" style="margin-left:auto">Turn on camera</button>
+      </div>
+      <div class="glist">
+        <div>✋ Open palm → <b>Help</b></div>
+        <div>✊ Fist → <b>No</b></div>
+        <div>👍 Thumbs up → <b>Yes</b></div>
+        <div>☝️ Pointer → <b>Water</b></div>
+        <div>✌️ Peace → <b>Food</b></div>
+        <div>3️⃣ Three fingers → <b>Bathroom</b></div>
+        <div>🤙 Pinky only → <b>Go outside</b></div>
+        <div>🤘 Rock sign → <b>Watch TV</b></div>
+      </div>
+      <div class="tog">
+        <div><div style="font-weight:700">Use trained model</div>
+        <div class="mini">Load <code>gesture_model.json</code> from the Python script</div></div>
+        <label class="btn" style="cursor:pointer;padding:9px 13px;font-size:.82rem">
+          Load…<input type="file" id="modelfile" accept=".json" style="display:none">
+        </label>
+      </div>
+      <div id="modelbox" class="hide" style="margin-top:10px;padding:12px;border:1.5px solid var(--line);border-radius:12px">
+        <div class="mini" id="modelinfo"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px;text-align:center">
+          <div style="padding:9px;border-radius:10px;background:var(--sand)">
+            <div class="mini">Rule-based baseline</div>
+            <div style="font-weight:700;font-size:1rem" id="pred-rule">—</div>
+          </div>
+          <div style="padding:9px;border-radius:10px;background:#DCEAD9">
+            <div class="mini">Your trained model</div>
+            <div style="font-weight:700;font-size:1rem" id="pred-ml">—</div>
+          </div>
+        </div>
+        <div class="mini" style="margin-top:9px;text-align:center">
+          Agreement this session: <b id="agree">—</b>
+          &nbsp;·&nbsp; <label style="cursor:pointer"><input type="checkbox" id="useml"> let the model drive the app</label>
+        </div>
+      </div>
+
+      <div class="tog">
+        <div><div style="font-weight:700">Data collection mode</div>
+        <div class="mini">Record labelled hand data to train a model</div></div>
+        <label class="sw"><input type="checkbox" id="coltog"><span class="sl"></span></label>
+      </div>
+      <div id="colpanel" class="hide">
+        <p class="mini">Hold a pose, then click its label to save one sample.</p>
+        <div class="cbtns" id="cbtns"></div>
+        <div style="margin-top:9px">
+          <button class="btn" id="b-csv">⬇ Download dataset.csv</button>
+          <span class="mini" id="nsamp">0 samples</span>
+        </div>
+      </div>
+      <details>
+        <summary>How this works (data-science notes)</summary>
+        <p>MediaPipe Hands finds 21 landmarks on your hand each frame. Geometric
+        features (which fingers are extended) feed a rule-based classifier — a fast,
+        transparent <em>baseline</em>. Collect samples above, then train a real
+        KNN / Random-Forest model with <code>train_gesture_classifier.py</code> and
+        compare the two. Testing on a <em>separate recording session</em> is what
+        gives an honest accuracy number.</p>
+      </details>
+    </div>
+    <aside class="panel">
+      <h2>Usage insights</h2>
+      <div style="display:flex;gap:22px;margin-bottom:14px">
+        <div><div class="stat" id="s-total2">0</div><div class="mini">requests</div></div>
+        <div><div class="stat" id="s-top2">—</div><div class="mini">most needed</div></div>
+      </div>
+      <div class="bars" id="bars2"><p class="mini">Nothing recorded yet.</p></div>
+    </aside>
+  </div>
+</section>
+
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+<script>
+/* =====================================================================
+   0) SPEECH
+===================================================================== */
+function speak(text, rate){
+  if(!('speechSynthesis' in window)) return;
+  var u = new SpeechSynthesisUtterance(text);
+  u.rate = rate || 0.9;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(u);
+}
+function rateVal(){ var r=document.getElementById('rate'); return r?parseFloat(r.value):0.9; }
+
+/* =====================================================================
+   1) AAC BOARD
+===================================================================== */
+var NEEDS=[
+ {id:'water',em:'💧',l:'Water',p:'I need water',c:'c-body'},
+ {id:'food',em:'🍽️',l:'Food',p:'I need food',c:'c-body'},
+ {id:'bathroom',em:'🚻',l:'Bathroom',p:'I need the bathroom',c:'c-body'},
+ {id:'pain',em:'🤕',l:'Hurt',p:'I am hurt, I need help',c:'c-urg'},
+ {id:'help',em:'🆘',l:'Help',p:'I need help',c:'c-urg'},
+ {id:'medicine',em:'💊',l:'Medicine',p:'I need my medicine',c:'c-urg'},
+ {id:'tired',em:'😴',l:'Tired',p:'I am tired',c:'c-feel'},
+ {id:'hot',em:'🥵',l:'Too Hot',p:'I am too hot',c:'c-body'},
+ {id:'cold',em:'🥶',l:'Too Cold',p:'I am too cold',c:'c-body'},
+ {id:'quiet',em:'🤫',l:'Too Loud',p:'It is too loud, I need quiet',c:'c-body'},
+ {id:'goout',em:'🚪',l:'Go Outside',p:'I want to go outside',c:'c-body'},
+ {id:'tv',em:'📺',l:'Watch TV',p:'I want to watch TV',c:'c-feel'},
+ {id:'yes',em:'👍',l:'Yes',p:'Yes',c:'c-feel'},
+ {id:'no',em:'👎',l:'No',p:'No',c:'c-feel'},
+ {id:'happy',em:'🙂',l:'Happy',p:'I feel happy',c:'c-feel'},
+ {id:'sad',em:'🙁',l:'Sad',p:'I feel sad',c:'c-feel'}
+];
+var usage=[];
+function logNeed(n){ usage.push({l:n.l,ts:Date.now()}); renderInsights(); }
+function fire(n,btn){
+  speak(n.p, rateVal()); logNeed(n);
+  if(btn){ btn.classList.add('fire'); setTimeout(function(){btn.classList.remove('fire');},170); }
+}
+(function(){
+  var g=document.getElementById('grid');
+  NEEDS.forEach(function(n){
+    var b=document.createElement('button');
+    b.className='need '+n.c; b.setAttribute('aria-label',n.l);
+    b.innerHTML='<span class="em">'+n.em+'</span><span>'+n.l+'</span>';
+    b.addEventListener('click',function(){ fire(n,b); });
+    g.appendChild(b);
+  });
+})();
+document.getElementById('bigtext').addEventListener('change',function(e){
+  document.body.classList.toggle('big',e.target.checked);
+});
+document.getElementById('clearlog').addEventListener('click',function(){ usage=[]; renderInsights(); });
+
+function renderInsights(){
+  var counts={}; usage.forEach(function(e){ counts[e.l]=(counts[e.l]||0)+1; });
+  var sorted=Object.keys(counts).map(function(k){return [k,counts[k]];}).sort(function(a,b){return b[1]-a[1];});
+  ['s-total','s-total2'].forEach(function(id){ var el=document.getElementById(id); if(el) el.textContent=usage.length; });
+  ['s-top','s-top2'].forEach(function(id){ var el=document.getElementById(id); if(el) el.textContent=sorted.length?sorted[0][0]:'—'; });
+  ['bars','bars2'].forEach(function(id){
+    var el=document.getElementById(id); if(!el) return;
+    if(!sorted.length){ el.innerHTML='<p class="mini">Nothing recorded yet.</p>'; return; }
+    var max=sorted[0][1];
+    el.innerHTML=sorted.slice(0,6).map(function(kv){
+      return '<div class="b"><div class="bl"><span>'+kv[0]+'</span><span>'+kv[1]+'</span></div>'+
+             '<div class="bt"><div class="bf" style="width:'+(kv[1]/max*100).toFixed(0)+'%"></div></div></div>';
+    }).join('');
+  });
+  var lg=document.getElementById('log');
+  if(lg){
+    lg.innerHTML=!usage.length?'<li class="mini">No activity yet.</li>':
+      usage.slice(-8).reverse().map(function(e){
+        var t=new Date(e.ts).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+        return '<li><span>'+e.l+'</span><span>'+t+'</span></li>';
+      }).join('');
+  }
+}
+renderInsights();
+
+/* =====================================================================
+   2) STROKE DATA  (0-100 coordinate box, y grows downward)
+===================================================================== */
+function arc(cx,cy,rx,ry,a0,a1,steps){
+  steps=steps||14; var out=[];
+  for(var i=0;i<=steps;i++){
+    var t=(a0+(a1-a0)*i/steps)*Math.PI/180;
+    out.push({x:cx+rx*Math.cos(t), y:cy+ry*Math.sin(t)});
+  }
+  return out;
+}
+var S={
+ '0':[arc(50,50,26,38,-90,270,20)],
+ '1':[[{x:38,y:24},{x:50,y:12},{x:50,y:88}]],
+ '2':[[{x:26,y:24},{x:34,y:12},{x:58,y:12},{x:72,y:24},{x:72,y:38},{x:26,y:84},{x:74,y:84}]],
+ '3':[[{x:28,y:18},{x:50,y:12},{x:68,y:20},{x:68,y:38},{x:50,y:50},{x:68,y:62},{x:68,y:80},{x:50,y:88},{x:28,y:82}]],
+ '4':[[{x:60,y:12},{x:22,y:64},{x:78,y:64}],[{x:60,y:12},{x:60,y:88}]],
+ '5':[[{x:70,y:12},{x:30,y:12},{x:30,y:45},{x:55,y:40},{x:68,y:50},{x:68,y:72},{x:50,y:88},{x:30,y:80}]],
+ '6':[[{x:62,y:14},{x:44,y:14},{x:30,y:26},{x:22,y:46},{x:20,y:64}],arc(40,72,20,18,-90,270,12)],
+ '7':[[{x:24,y:12},{x:76,y:12},{x:46,y:88}]],
+ '8':[arc(50,30,19,18,-90,270,12),arc(50,68,22,20,-90,270,12)],
+ '9':[arc(48,32,22,20,-90,270,12),[{x:70,y:36},{x:60,y:62},{x:50,y:88}]],
+ 'A':[[{x:22,y:88},{x:50,y:12}],[{x:50,y:12},{x:78,y:88}],[{x:32,y:60},{x:68,y:60}]],
+ 'B':[[{x:20,y:12},{x:20,y:88}],
+      [{x:20,y:12},{x:52,y:14},{x:62,y:26},{x:56,y:42},{x:38,y:48},{x:20,y:48}],
+      [{x:20,y:48},{x:56,y:52},{x:68,y:66},{x:60,y:82},{x:40,y:88},{x:20,y:88}]],
+ 'C':[arc(50,50,26,38,40,320,16)],
+ 'D':[[{x:22,y:12},{x:22,y:88}],arc(22,50,32,38,-90,90,16)],
+ 'E':[[{x:26,y:12},{x:26,y:88}],[{x:26,y:12},{x:74,y:12}],[{x:26,y:50},{x:62,y:50}],[{x:26,y:88},{x:74,y:88}]],
+ 'F':[[{x:26,y:12},{x:26,y:88}],[{x:26,y:12},{x:74,y:12}],[{x:26,y:50},{x:62,y:50}]],
+ 'G':[arc(50,50,26,38,40,320,16),[{x:74,y:50},{x:74,y:74},{x:54,y:74}]],
+ 'H':[[{x:26,y:12},{x:26,y:88}],[{x:74,y:12},{x:74,y:88}],[{x:26,y:50},{x:74,y:50}]],
+ 'I':[[{x:50,y:12},{x:50,y:88}]],
+ 'J':[[{x:66,y:12},{x:66,y:68}].concat(arc(50,68,16,16,0,120,8))],
+ 'K':[[{x:26,y:12},{x:26,y:88}],[{x:74,y:12},{x:26,y:50}],[{x:26,y:50},{x:74,y:88}]],
+ 'L':[[{x:26,y:12},{x:26,y:88},{x:74,y:88}]],
+ 'M':[[{x:22,y:88},{x:22,y:12},{x:50,y:55},{x:78,y:12},{x:78,y:88}]],
+ 'N':[[{x:22,y:88},{x:22,y:12},{x:78,y:88},{x:78,y:12}]],
+ 'O':[arc(50,50,28,38,-90,270,22)],
+ 'P':[[{x:26,y:12},{x:26,y:88}],arc(26,31,22,19,-90,90,12)],
+ 'Q':[arc(50,50,28,38,-90,270,22),[{x:60,y:72},{x:80,y:92}]],
+ 'R':[[{x:26,y:12},{x:26,y:88}],arc(26,31,22,19,-90,90,12),[{x:26,y:50},{x:74,y:88}]],
+ 'S':[[{x:72,y:22},{x:60,y:12},{x:40,y:12},{x:28,y:22},{x:28,y:34},{x:40,y:44},{x:60,y:56},{x:72,y:66},{x:72,y:78},{x:60,y:88},{x:40,y:88},{x:28,y:78}]],
+ 'T':[[{x:22,y:12},{x:78,y:12}],[{x:50,y:12},{x:50,y:88}]],
+ 'U':[[{x:22,y:12},{x:22,y:64}].concat(arc(50,64,28,22,180,0,12)).concat([{x:78,y:12}])],
+ 'V':[[{x:22,y:12},{x:50,y:88},{x:78,y:12}]],
+ 'W':[[{x:18,y:12},{x:34,y:88},{x:50,y:40},{x:66,y:88},{x:82,y:12}]],
+ 'X':[[{x:24,y:12},{x:76,y:88}],[{x:76,y:12},{x:24,y:88}]],
+ 'Y':[[{x:24,y:12},{x:50,y:50}],[{x:76,y:12},{x:50,y:50}],[{x:50,y:50},{x:50,y:88}]],
+ 'Z':[[{x:24,y:12},{x:76,y:12},{x:24,y:88},{x:76,y:88}]]
+};
+function strokesFor(item){
+  var chars=String(item).split('');
+  if(chars.length===1) return (S[chars[0]]||[]).map(function(s){return s.slice();});
+  var n=chars.length, slot=100/n, out=[];
+  chars.forEach(function(ch,i){
+    (S[ch]||[]).forEach(function(st){
+      out.push(st.map(function(p){ return {x:i*slot+(p.x/100)*slot*0.86+slot*0.07, y:p.y}; }));
+    });
+  });
+  return out;
+}
+
+/* =====================================================================
+   3) LEARN PAGE — watch-then-connect-the-dots
+===================================================================== */
+var LEARN=(function(){
+  var gC=document.getElementById('c-guide'), iC=document.getElementById('c-ink'), pC=document.getElementById('c-pen');
+  var g=gC.getContext('2d'), ink=iC.getContext('2d'), pen=pC.getContext('2d');
+  var W=gC.width, H=gC.height, SX=W/100, SY=H/100;
+
+  var charEl=document.getElementById('l-char'), stepEl=document.getElementById('l-step');
+  var fbEl=document.getElementById('l-fb'), stripEl=document.getElementById('l-strip');
+  var progEl=document.getElementById('l-prog'), doneEl=document.getElementById('l-done'), allEl=document.getElementById('l-all');
+
+  var COLORS=['#3E7C82','#B5654A','#8574A1','#2F6F4F'];
+  var MAX_DOTS=10, MIN_DOTS=3, TARGET_SPACING=17, MIN_SEP=7, HIT=W*0.075;
+
+  var items=[], label='Letter', namer=null;
+  var idx=0, done={}, dots=[], strokeIdx=0, dotIdx=0, drawing=false, animating=false, animTimer=null;
+
+  function toC(p){ return {x:p.x*SX, y:p.y*SY}; }
+
+  // Cumulative arc-length table for a polyline, so we can place dots by
+  // true distance travelled rather than per-segment (which bunched dots up
+  // on curves, since curves are made of many short segments).
+  function arcTable(stroke){
+    var cum=[0], total=0;
+    for(var i=0;i<stroke.length-1;i++){
+      total += Math.hypot(stroke[i+1].x-stroke[i].x, stroke[i+1].y-stroke[i].y);
+      cum.push(total);
+    }
+    return {cum:cum, total:total};
+  }
+
+  function pointAtDistance(stroke, tbl, dist){
+    if(dist<=0) return {x:stroke[0].x, y:stroke[0].y};
+    if(dist>=tbl.total) { var L=stroke[stroke.length-1]; return {x:L.x, y:L.y}; }
+    for(var i=0;i<tbl.cum.length-1;i++){
+      if(dist<=tbl.cum[i+1]){
+        var segLen=tbl.cum[i+1]-tbl.cum[i];
+        var t=segLen>0 ? (dist-tbl.cum[i])/segLen : 0;
+        var a=stroke[i], b=stroke[i+1];
+        return {x:a.x+(b.x-a.x)*t, y:a.y+(b.y-a.y)*t};
+      }
+    }
+    var last=stroke[stroke.length-1];
+    return {x:last.x, y:last.y};
+  }
+
+  // Place at most MAX_DOTS evenly-spaced dots along a stroke.
+  // Closed loops (O, 0, 8) drop the final dot so it doesn't land on dot 1.
+  function makeDots(stroke){
+    var tbl=arcTable(stroke);
+    if(tbl.total<=0) return [{x:stroke[0].x, y:stroke[0].y}];
+
+    var first=stroke[0], last=stroke[stroke.length-1];
+    var closed = Math.hypot(last.x-first.x, last.y-first.y) < MIN_SEP;
+
+    var want = Math.round(tbl.total/TARGET_SPACING) + 1;
+    var n = Math.max(MIN_DOTS, Math.min(MAX_DOTS, want));
+
+    var out=[];
+    if(closed){
+      // sample n points around the loop, excluding the duplicate endpoint
+      for(var i=0;i<n;i++) out.push(pointAtDistance(stroke, tbl, tbl.total*i/n));
+    } else {
+      for(var j=0;j<n;j++) out.push(pointAtDistance(stroke, tbl, tbl.total*j/(n-1)));
+    }
+
+    // Safety net: drop any dot that landed too close to the previous one,
+    // which is what produced visually "repeated" numbers before.
+    var clean=[out[0]];
+    for(var k=1;k<out.length;k++){
+      var p=out[k], q=clean[clean.length-1];
+      if(Math.hypot(p.x-q.x,p.y-q.y) >= MIN_SEP) clean.push(p);
+    }
+    if(closed && clean.length>2){
+      var f=clean[0], e=clean[clean.length-1];
+      if(Math.hypot(e.x-f.x,e.y-f.y) < MIN_SEP) clean.pop();
+    }
+    return clean;
+  }
+
+  function buildDots(){
+    dots=strokesFor(items[idx]).map(function(st,i){
+      return { color:COLORS[i%COLORS.length], path:st, pts:makeDots(st).map(function(p){
+        return {x:p.x, y:p.y, hit:false};
+      })};
+    });
+    strokeIdx=0; dotIdx=0;
+    try{ window.__dots = dots; }catch(_){}   // exposed for automated testing
+  }
+
+  function drawGuide(){
+    g.clearRect(0,0,W,H);
+
+    /* Only the stroke being worked on shows numbered dots. Completed strokes
+       become solid coloured lines, and upcoming strokes stay faint with no
+       numbers at all. This is what stops two numbers stacking on top of each
+       other where strokes meet (A's crossbar, B's bumps, K's arms) — those
+       junctions genuinely share a point, so the only clean fix is to never
+       show two numberings at once. */
+
+    // PASS 1 — every stroke's path, styled by its state
+    dots.forEach(function(st,si){
+      var cp=st.path.map(toC);
+      g.save();
+      g.lineJoin='round'; g.lineCap='round';
+      if(si<strokeIdx){                       // finished
+        g.setLineDash([]);
+        g.strokeStyle=st.color; g.globalAlpha=0.5; g.lineWidth=W*0.035;
+      } else if(si===strokeIdx){              // in progress
+        g.setLineDash([W*0.014,W*0.022]);
+        g.strokeStyle='rgba(62,124,130,0.40)'; g.lineWidth=W*0.014;
+      } else {                                // not started yet
+        g.setLineDash([W*0.012,W*0.03]);
+        g.strokeStyle='rgba(180,172,150,0.22)'; g.lineWidth=W*0.012;
+      }
+      g.beginPath();
+      g.moveTo(cp[0].x,cp[0].y);
+      for(var k=1;k<cp.length;k++) g.lineTo(cp[k].x,cp[k].y);
+      g.stroke();
+      g.restore();
+    });
+
+    // PASS 2 — numbered dots for the ACTIVE stroke only
+    if(strokeIdx<dots.length){
+      var st=dots[strokeIdx];
+      st.pts.forEach(function(d,di){
+        var c=toC(d), r=W*0.038;
+        var isNext = di===dotIdx;
+        if(isNext){
+          g.beginPath(); g.arc(c.x,c.y,r*1.8,0,7);
+          g.fillStyle='rgba(62,124,130,0.18)'; g.fill();
+        }
+        g.beginPath(); g.arc(c.x,c.y,r,0,7);
+        g.fillStyle = d.hit ? '#3F9142' : (isNext ? st.color : 'rgba(196,189,168,0.95)');
+        g.fill();
+        // white ring keeps a dot readable if it lands on a finished stroke's line
+        g.lineWidth=W*0.006; g.strokeStyle='rgba(255,255,255,0.9)'; g.stroke();
+        g.fillStyle='#fff';
+        g.font='bold '+Math.floor(W*0.042)+'px "Atkinson Hyperlegible",sans-serif';
+        g.textAlign='center'; g.textBaseline='middle';
+        g.fillText(String(di+1), c.x, c.y+1);
+      });
+
+      // small start marker so it's obvious where this stroke begins
+      if(dotIdx===0){
+        var s0=toC(st.pts[0]);
+        g.save();
+        g.strokeStyle=st.color; g.lineWidth=W*0.008;
+        g.beginPath(); g.arc(s0.x,s0.y,W*0.062,0,7); g.stroke();
+        g.restore();
+      }
+    }
+
+    // Guidance arrow: when the child has drifted, show clearly where to go next.
+    if(offCount>4 && strokeIdx<dots.length){
+      var stc=dots[strokeIdx];
+      if(dotIdx<stc.pts.length){
+        var to=toC(stc.pts[dotIdx]);
+        var fromPt = dotIdx>0 ? toC(stc.pts[dotIdx-1]) : null;
+        if(fromPt){
+          var ang=Math.atan2(to.y-fromPt.y, to.x-fromPt.x);
+          var back=W*0.075;
+          var tailX=to.x-Math.cos(ang)*back, tailY=to.y-Math.sin(ang)*back;
+          g.save();
+          g.strokeStyle='#B5654A'; g.lineWidth=W*0.012; g.lineCap='round';
+          g.beginPath(); g.moveTo(tailX,tailY); g.lineTo(to.x,to.y); g.stroke();
+          var s=W*0.03;
+          g.fillStyle='#B5654A';
+          g.beginPath();
+          g.moveTo(to.x,to.y);
+          g.lineTo(to.x-s*Math.cos(ang-Math.PI/6), to.y-s*Math.sin(ang-Math.PI/6));
+          g.lineTo(to.x-s*Math.cos(ang+Math.PI/6), to.y-s*Math.sin(ang+Math.PI/6));
+          g.closePath(); g.fill();
+          g.restore();
+        }
+      }
+    }
+  }
+
+  function clearInk(){ ink.clearRect(0,0,W,H); }
+  function clearPen(){ pen.clearRect(0,0,W,H); }
+
+  ink.lineJoin='round'; ink.lineCap='round'; ink.lineWidth=W*0.045; ink.strokeStyle='#3E7C82';
+
+  function pos(e){
+    var r=iC.getBoundingClientRect();
+    return {x:(e.clientX-r.left)*(W/r.width), y:(e.clientY-r.top)*(H/r.height)};
+  }
+
+  /* ---- gentle live correction -------------------------------------
+     Three things can go wrong while tracing, and each gets its own calm
+     nudge rather than a generic "wrong". Nothing here ever blocks the
+     child or resets their work — it only redirects. */
+
+  var offCount=0, lastNudge='', nudgeUntil=0;
+
+  function nudge(msg, force){
+    var now=performance.now();
+    if(!force && msg===lastNudge && now<nudgeUntil) return;   // don't flicker
+    lastNudge=msg; nudgeUntil=now+900;
+    stepEl.textContent=msg;
+  }
+
+  function distToSegment(p,a,b){
+    var vx=b.x-a.x, vy=b.y-a.y;
+    var len2=vx*vx+vy*vy;
+    if(len2===0) return Math.hypot(p.x-a.x,p.y-a.y);
+    var t=Math.max(0,Math.min(1,((p.x-a.x)*vx+(p.y-a.y)*vy)/len2));
+    return Math.hypot(p.x-(a.x+vx*t), p.y-(a.y+vy*t));
+  }
+
+  // How far is this point from the stroke the child is meant to be on?
+  function distToStroke(p, stroke){
+    var pts=stroke.path.map(toC), best=Infinity;
+    for(var i=0;i<pts.length-1;i++){
+      var dd=distToSegment(p, pts[i], pts[i+1]);
+      if(dd<best) best=dd;
+    }
+    return best;
+  }
+
+  // Which dot (if any) is the finger on right now?
+  function dotUnder(p){
+    for(var si=0;si<dots.length;si++){
+      for(var di=0;di<dots[si].pts.length;di++){
+        var c=toC(dots[si].pts[di]);
+        if(Math.hypot(p.x-c.x,p.y-c.y)<=HIT) return {si:si, di:di};
+      }
+    }
+    return null;
+  }
+
+  function checkHit(p){
+    if(strokeIdx>=dots.length) return;
+    var st=dots[strokeIdx];
+    if(dotIdx>=st.pts.length) return;
+
+    var target=toC(st.pts[dotIdx]);
+
+    // 1. Correct dot reached -> advance
+    if(Math.hypot(p.x-target.x,p.y-target.y)<=HIT){
+      st.pts[dotIdx].hit=true; dotIdx++; offCount=0;
+      if(dotIdx>=st.pts.length){
+        strokeIdx++; dotIdx=0;
+        if(strokeIdx>=dots.length){ finish(); }
+        else { nudge('Nice! Lift your finger — new dots have appeared, start at dot 1', true); }
+      } else {
+        nudge('Good — now go to dot '+(dotIdx+1), true);
+      }
+      drawGuide();
+      return;
+    }
+
+    // 2. Touched a dot, but not the right one
+    var hitAny=dotUnder(p);
+    if(hitAny){
+      if(hitAny.si!==strokeIdx){
+        nudge('Not that part yet — the numbered dots show what to do now');
+      } else if(hitAny.di>dotIdx){
+        nudge('Almost! Go to dot '+(dotIdx+1)+' before dot '+(hitAny.di+1));
+      } else if(hitAny.di<dotIdx){
+        nudge('You already did dot '+(hitAny.di+1)+' — next is dot '+(dotIdx+1));
+      }
+      drawGuide();
+      return;
+    }
+
+    // 3. Drifting away from the line
+    var away=distToStroke(p, st);
+    if(away > HIT*2.2){
+      offCount++;
+      if(offCount>4){ nudge('Come back to the dotted line — head for dot '+(dotIdx+1)); drawGuide(); }
+    } else if(offCount>0 && away < HIT*1.2){
+      offCount=0;
+      nudge('That’s it — keep going to dot '+(dotIdx+1));
+      drawGuide();
+    }
+  }
+
+  function finish(){
+    done[idx]=true;
+    fbEl.textContent='⭐ Perfect! That’s '+items[idx];
+    fbEl.className='fb good';
+    stepEl.textContent='';
+    speak('Great job! That is '+(namer?namer(items[idx]):items[idx]), 0.9);
+    renderStrip(); renderProg();
+    setTimeout(function(){ go(idx+1); }, 1500);
+  }
+
+  // Check the whole segment between two frames, not just the endpoint.
+  // A fast finger can jump 40+ pixels between pointermove events, which
+  // would otherwise skip straight over a dot without registering it.
+  function checkPath(from, to){
+    if(!from){ checkHit(to); return; }
+    var dist=Math.hypot(to.x-from.x, to.y-from.y);
+    var steps=Math.max(1, Math.ceil(dist/(HIT*0.5)));
+    for(var i=1;i<=steps;i++){
+      var t=i/steps;
+      checkHit({x:from.x+(to.x-from.x)*t, y:from.y+(to.y-from.y)*t});
+    }
+  }
+
+  var lastPos=null;
+
+  iC.addEventListener('pointerdown',function(e){
+    if(animating) return;
+    e.preventDefault();
+    drawing=true; var p=pos(e);
+    lastPos=p;
+    ink.beginPath(); ink.moveTo(p.x,p.y);
+    checkHit(p);
+    try{ iC.setPointerCapture(e.pointerId); }catch(_){}
+  });
+  iC.addEventListener('pointermove',function(e){
+    if(!drawing||animating) return;
+    e.preventDefault();
+    var p=pos(e);
+    // Ink colour reflects whether the child is on the line: teal on track,
+    // soft amber when drifting. Immediate, wordless feedback.
+    if(strokeIdx<dots.length){
+      var away=distToStroke(p, dots[strokeIdx]);
+      var wanted = (away > HIT*2.2) ? '#D89B5E' : '#3E7C82';
+      if(ink.strokeStyle!==wanted){
+        ink.stroke();               // close off the current coloured run
+        ink.strokeStyle=wanted;
+        ink.beginPath(); ink.moveTo(lastPos?lastPos.x:p.x, lastPos?lastPos.y:p.y);
+      }
+    }
+    ink.lineTo(p.x,p.y); ink.stroke();
+    checkPath(lastPos, p);
+    lastPos=p;
+  });
+  ['pointerup','pointercancel','pointerleave'].forEach(function(ev){
+    iC.addEventListener(ev,function(){ drawing=false; lastPos=null; });
+  });
+  // Belt-and-braces for older iOS Safari, which can still scroll the page
+  // mid-trace even with touch-action:none.
+  ['touchstart','touchmove'].forEach(function(ev){
+    iC.addEventListener(ev,function(e){ e.preventDefault(); }, {passive:false});
+  });
+
+  /* ---- animated demonstration ---- */
+  function watch(){
+    if(animating) return;
+    animating=true; clearInk(); clearPen();
+    dots.forEach(function(st){ st.pts.forEach(function(d){ d.hit=false; }); });
+    strokeIdx=0; dotIdx=0; drawGuide();
+    fbEl.textContent=''; fbEl.className='fb';
+    stepEl.textContent='Watch how it is written…';
+    document.getElementById('b-watch').disabled=true;
+
+    var allSteps=[];
+    dots.forEach(function(st,si){
+      var cp=st.path.map(toC), fine=[];
+      for(var i=0;i<cp.length-1;i++){
+        var a=cp[i],b=cp[i+1], d=Math.hypot(b.x-a.x,b.y-a.y);
+        var n=Math.max(2,Math.round(d/4));
+        for(var k=0;k<n;k++){ var t=k/n; fine.push({x:a.x+(b.x-a.x)*t, y:a.y+(b.y-a.y)*t, si:si, first:(i===0&&k===0)}); }
+      }
+      fine.push({x:cp[cp.length-1].x, y:cp[cp.length-1].y, si:si, first:false});
+      allSteps=allSteps.concat(fine);
+    });
+
+    var i=0, lastSi=-1;
+    clearTimeout(animTimer);
+    (function step(){
+      if(i>=allSteps.length){
+        animating=false;
+        document.getElementById('b-watch').disabled=false;
+        clearPen();
+        stepEl.textContent='Now your turn — drag from dot 1 to dot 2 to dot 3…';
+        setTimeout(function(){ clearInk(); }, 700);
+        return;
+      }
+      var s=allSteps[i];
+      if(s.si!==lastSi){ ink.beginPath(); ink.moveTo(s.x,s.y); lastSi=s.si; ink.strokeStyle=dots[s.si].color; }
+      else { ink.lineTo(s.x,s.y); ink.stroke(); }
+      clearPen();
+      pen.beginPath(); pen.arc(s.x,s.y,W*0.028,0,7);
+      pen.fillStyle='#262A28'; pen.fill();
+      pen.beginPath(); pen.arc(s.x,s.y,W*0.05,0,7);
+      pen.strokeStyle='rgba(38,42,40,0.28)'; pen.lineWidth=2; pen.stroke();
+      i++;
+      animTimer=setTimeout(step, 22);
+    })();
+  }
+
+  function renderStrip(){
+    stripEl.innerHTML='';
+    items.forEach(function(ch,i){
+      var b=document.createElement('button');
+      b.textContent=ch;
+      if(done[i]) b.classList.add('done');
+      if(i===idx) b.classList.add('cur');
+      b.addEventListener('click',function(){ go(i); });
+      stripEl.appendChild(b);
+    });
+  }
+  function renderProg(){
+    var n=Object.keys(done).length;
+    doneEl.textContent=n; allEl.textContent=items.length;
+    progEl.style.width=(items.length? n/items.length*100 : 0)+'%';
+  }
+
+  function go(i){
+    clearTimeout(animTimer); animating=false;
+    offCount=0; lastNudge=''; nudgeUntil=0; lastPos=null; ink.strokeStyle='#3E7C82';
+    document.getElementById('b-watch').disabled=false;
+    idx=((i%items.length)+items.length)%items.length;
+    buildDots(); clearInk(); clearPen(); drawGuide();
+    charEl.textContent=items[idx];
+    stepEl.textContent='Press “Watch me”, or start at dot 1';
+    fbEl.textContent=''; fbEl.className='fb';
+    renderStrip(); renderProg();
+  }
+
+  document.getElementById('b-watch').addEventListener('click',watch);
+  document.getElementById('b-say').addEventListener('click',function(){
+    speak(namer?namer(items[idx]):items[idx], 0.85);
+  });
+  document.getElementById('b-clear').addEventListener('click',function(){
+    clearTimeout(animTimer); animating=false;
+    offCount=0; lastNudge=''; nudgeUntil=0; lastPos=null; ink.strokeStyle='#3E7C82';
+    document.getElementById('b-watch').disabled=false;
+    buildDots(); clearInk(); clearPen(); drawGuide();
+    fbEl.textContent=''; fbEl.className='fb';
+    stepEl.textContent='Start again at dot 1';
+  });
+  document.getElementById('b-prev').addEventListener('click',function(){ go(idx-1); });
+  document.getElementById('b-next').addEventListener('click',function(){ go(idx+1); });
+
+  return {
+    load:function(newItems, newLabel, newNamer){
+      items=newItems; label=newLabel; namer=newNamer||null; done={}; go(0);
+    }
+  };
+})();
+
+var NUMWORDS=['one','two','three','four','five','six','seven','eight','nine','ten'];
+function loadNumbers(){ LEARN.load(['1','2','3','4','5','6','7','8','9','10'],'Number',
+  function(n){ return NUMWORDS[parseInt(n,10)-1]||n; }); }
+function loadLetters(){ LEARN.load('ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split(''),'Letter',null); }
+
+/* =====================================================================
+   4) TABS
+===================================================================== */
+var TABS=[['t-talk','p-talk'],['t-num','p-learn'],['t-let','p-learn'],['t-ges','p-ges']];
+function show(tabId){
+  TABS.forEach(function(t){
+    document.getElementById(t[0]).classList.toggle('on', t[0]===tabId);
+    document.getElementById(t[1]).classList.remove('on');
+  });
+  var page=TABS.filter(function(t){return t[0]===tabId;})[0][1];
+  document.getElementById(page).classList.add('on');
+}
+document.getElementById('t-talk').addEventListener('click',function(){ show('t-talk'); });
+document.getElementById('t-num').addEventListener('click',function(){ show('t-num'); loadNumbers(); });
+document.getElementById('t-let').addEventListener('click',function(){ show('t-let'); loadLetters(); });
+document.getElementById('t-ges').addEventListener('click',function(){ show('t-ges'); });
+
+/* =====================================================================
+   5) GESTURE MODE
+===================================================================== */
+var GMAP={open_palm:'help',fist:'no',thumbs_up:'yes',pointer:'water',peace:'food',
+          three_fingers:'bathroom',pinky_only:'goout',rock_sign:'tv'};
+var GLAB={open_palm:'✋ Open palm',fist:'✊ Fist',thumbs_up:'👍 Thumbs up',pointer:'☝️ Pointer',
+          peace:'✌️ Peace sign',three_fingers:'3️⃣ Three fingers',pinky_only:'🤙 Pinky only',rock_sign:'🤘 Rock sign'};
+var samples=[], latestLM=null;
+
+/* ---------------------------------------------------------------------
+   TRAINED-MODEL INFERENCE IN THE BROWSER
+   Loads gesture_model.json exported by train_gesture_classifier.py and
+   runs prediction client-side, so the Python model actually drives the
+   live app instead of sitting unused in a notebook.
+--------------------------------------------------------------------- */
+var ML={ model:null, agree:0, total:0 };
+
+// MUST match normalise_landmarks() in the Python script exactly.
+function normaliseLandmarks(flat){
+  var pts=[];
+  for(var i=0;i<21;i++) pts.push([flat[i*2], flat[i*2+1]]);
+  var wx=pts[0][0], wy=pts[0][1], span=0;
+  for(var j=0;j<21;j++){
+    pts[j]=[pts[j][0]-wx, pts[j][1]-wy];
+    var d=Math.hypot(pts[j][0], pts[j][1]);
+    if(d>span) span=d;
+  }
+  if(span===0) span=1;
+  var out=[];
+  for(var k=0;k<21;k++){ out.push(pts[k][0]/span, pts[k][1]/span); }
+  return out;
+}
+
+function lmToFlat(lm){
+  var f=[]; for(var i=0;i<21;i++){ f.push(lm[i].x, lm[i].y); } return f;
+}
+
+function knnPredict(m, v){
+  var best=[];
+  for(var i=0;i<m.X.length;i++){
+    var s=0, row=m.X[i];
+    for(var j=0;j<v.length;j++){ var d=v[j]-row[j]; s+=d*d; }
+    best.push([s, m.y[i]]);
+  }
+  best.sort(function(a,b){ return a[0]-b[0]; });
+  var votes={}, k=Math.min(m.k||5, best.length);
+  for(var n=0;n<k;n++){ votes[best[n][1]]=(votes[best[n][1]]||0)+1; }
+  var top=null, cnt=-1;
+  for(var lab in votes){ if(votes[lab]>cnt){ cnt=votes[lab]; top=lab; } }
+  return top;
+}
+
+function treePredict(node, v){
+  while(!('leaf' in node)) node = (v[node.f] <= node.t) ? node.l : node.r;
+  return node.leaf;
+}
+
+function forestPredict(m, v){
+  var votes={};
+  for(var i=0;i<m.trees.length;i++){
+    var lab=treePredict(m.trees[i], v);
+    votes[lab]=(votes[lab]||0)+1;
+  }
+  var top=null, cnt=-1;
+  for(var lab2 in votes){ if(votes[lab2]>cnt){ cnt=votes[lab2]; top=lab2; } }
+  return top;
+}
+
+function mlPredict(lm){
+  if(!ML.model) return null;
+  var v=lmToFlat(lm);
+  if(ML.model.normalised) v=normaliseLandmarks(v);
+  try{
+    return ML.model.type==='knn' ? knnPredict(ML.model,v) : forestPredict(ML.model,v);
+  }catch(e){ return null; }
+}
+
+document.getElementById('modelfile').addEventListener('change', function(e){
+  var file=e.target.files[0]; if(!file) return;
+  var fr=new FileReader();
+  fr.onload=function(){
+    try{
+      var m=JSON.parse(fr.result);
+      if(!m.type || (m.type!=='knn' && m.type!=='random_forest')) throw new Error('bad type');
+      ML.model=m; ML.agree=0; ML.total=0;
+      document.getElementById('modelbox').classList.remove('hide');
+      var size = m.type==='knn' ? (m.X.length+' training samples')
+                                : (m.trees.length+' trees');
+      document.getElementById('modelinfo').textContent =
+        'Loaded: '+(m.type==='knn'?'K-Nearest Neighbours':'Random Forest')+
+        ' · '+size+' · '+m.classes.length+' gestures'+
+        (m.normalised?' · normalised features':'');
+    }catch(err){
+      alert('That file could not be read as a model. Use gesture_model.json produced by train_gesture_classifier.py.');
+    }
+  };
+  fr.readAsText(file);
+});
+
+(function(){
+  var box=document.getElementById('cbtns');
+  Object.keys(GMAP).forEach(function(k){
+    var b=document.createElement('button');
+    b.innerHTML=GLAB[k].split(' ')[0]+' '+k+' <span class="pill" id="c-'+k+'">0</span>';
+    b.addEventListener('click',function(){
+      if(!latestLM){ alert('No hand detected right now.'); return; }
+      var row={label:k};
+      latestLM.forEach(function(p,i){ row['x'+i]=p.x.toFixed(4); row['y'+i]=p.y.toFixed(4); });
+      samples.push(row);
+      document.getElementById('c-'+k).textContent=samples.filter(function(r){return r.label===k;}).length;
+      document.getElementById('nsamp').textContent=samples.length+' samples';
+    });
+    box.appendChild(b);
+  });
+})();
+
+document.getElementById('coltog').addEventListener('change',function(e){
+  document.getElementById('colpanel').classList.toggle('hide',!e.target.checked);
+});
+document.getElementById('b-csv').addEventListener('click',function(){
+  if(!samples.length){ alert('No samples collected yet.'); return; }
+  var cols=['label']; for(var i=0;i<21;i++){ cols.push('x'+i,'y'+i); }
+  var csv=[cols.join(',')].concat(samples.map(function(r){
+    return cols.map(function(c){ return r[c]; }).join(',');
+  })).join('\n');
+  var url=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));
+  var a=document.createElement('a'); a.href=url; a.download='gesture_dataset.csv'; a.click();
+  URL.revokeObjectURL(url);
+});
+
+(function(){
+  var vid=document.getElementById('vid'), ov=document.getElementById('ov');
+  var ctx=ov.getContext('2d');
+  var nameEl=document.getElementById('g-name'), hintEl=document.getElementById('g-hint');
+  var holdEl=document.getElementById('hold');
+  var cam=null, holdG=null, holdT=0, fired=null, HOLD=1100;
+
+  function ext(lm,tip,pip){ return lm[tip].y < lm[pip].y-0.02; }
+  function thumbOut(lm){
+    var t=lm[4],m=lm[2],pk=lm[17];
+    return Math.hypot(t.x-pk.x,t.y-pk.y) > Math.hypot(m.x-pk.x,m.y-pk.y)*1.15;
+  }
+  function classify(lm){
+    var i=ext(lm,8,6), m=ext(lm,12,10), r=ext(lm,16,14), p=ext(lm,20,18), th=thumbOut(lm);
+    if(i&&m&&r&&p) return 'open_palm';
+    if(!i&&!m&&!r&&!p&&!th) return 'fist';
+    if(th&&!i&&!m&&!r&&!p) return 'thumbs_up';
+    if(i&&!m&&!r&&!p) return 'pointer';
+    if(i&&m&&!r&&!p) return 'peace';
+    if(i&&m&&r&&!p) return 'three_fingers';
+    if(!i&&!m&&!r&&p) return 'pinky_only';
+    if(i&&!m&&!r&&p) return 'rock_sign';
+    return null;
+  }
+  function reset(){ holdG=null; holdEl.style.clipPath='inset(0 100% 0 0)'; }
+
+  function onResults(res){
+    ov.width=vid.videoWidth||480; ov.height=vid.videoHeight||360;
+    ctx.clearRect(0,0,ov.width,ov.height);
+    if(res.multiHandLandmarks && res.multiHandLandmarks.length){
+      var lm=res.multiHandLandmarks[0]; latestLM=lm;
+      if(window.drawConnectors && window.Hands){
+        drawConnectors(ctx,lm,Hands.HAND_CONNECTIONS,{color:'#3E7C82',lineWidth:3});
+        drawLandmarks(ctx,lm,{color:'#B5654A',lineWidth:1,radius:3});
+      }
+      var gname=classify(lm);
+      var mlname=mlPredict(lm);
+
+      // Live baseline-vs-model comparison
+      if(ML.model){
+        document.getElementById('pred-rule').textContent = gname ? GLAB[gname] : '—';
+        document.getElementById('pred-ml').textContent   = mlname ? (GLAB[mlname]||mlname) : '—';
+        if(gname && mlname){
+          ML.total++; if(gname===mlname) ML.agree++;
+          document.getElementById('agree').textContent =
+            Math.round(ML.agree/ML.total*100)+'% ('+ML.agree+'/'+ML.total+')';
+        }
+        if(document.getElementById('useml').checked && mlname) gname = mlname;
+      }
+
+      if(gname){
+        nameEl.textContent=GLAB[gname];
+        var need=NEEDS.filter(function(n){return n.id===GMAP[gname];})[0];
+        hintEl.textContent=need?('Hold to say “'+need.l+'”'):'Recognised';
+        if(gname===holdG){
+          var pct=Math.min(1,(performance.now()-holdT)/HOLD);
+          holdEl.style.clipPath='inset(0 '+((1-pct)*100)+'% 0 0)';
+          if(pct>=1 && fired!==gname){ fired=gname; if(need) fire(need,null); }
+        } else { holdG=gname; holdT=performance.now(); fired=null; holdEl.style.clipPath='inset(0 100% 0 0)'; }
+      } else { nameEl.textContent='Hand detected — no matching sign'; hintEl.textContent='Try a sign from the list'; reset(); }
+    } else {
+      latestLM=null; nameEl.textContent='No hand detected'; hintEl.textContent='Show your hand to the camera'; reset();
+    }
+  }
+
+  document.getElementById('b-cam').addEventListener('click',async function(){
+    if(cam) return;
+    if(typeof Hands==='undefined'||typeof Camera==='undefined'){
+      hintEl.textContent='Camera library did not load — check your internet connection.'; return;
+    }
+    hintEl.textContent='Requesting camera permission…';
+    try{
+      var hands=new Hands({locateFile:function(f){ return 'https://cdn.jsdelivr.net/npm/@mediapipe/hands/'+f; }});
+      hands.setOptions({maxNumHands:1,modelComplexity:1,minDetectionConfidence:0.7,minTrackingConfidence:0.6});
+      hands.onResults(onResults);
+      cam=new Camera(vid,{onFrame:async function(){ await hands.send({image:vid}); },width:480,height:360});
+      await cam.start();
+      var b=document.getElementById('b-cam'); b.textContent='Camera on'; b.disabled=true;
+    }catch(err){ hintEl.textContent='Camera blocked. Allow camera access in your browser settings.'; cam=null; }
+  });
+})();
+
+/* start on letters data so the Learn page is never empty if opened directly */
+loadLetters();
+</script>
+</body>
+</html>
