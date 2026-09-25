@@ -1,13 +1,13 @@
 /* MyVoice service worker
-   Caches the app itself so it opens with no internet — important for a
-   communication aid, which has to work in a car, a clinic corridor, or
-   anywhere the signal drops.
+   Network-first strategy: always tries to fetch fresh content from the network.
+   Falls back to cache only if offline — so the app still works without internet.
 
-   Note: Gesture Mode loads its hand-tracking model from a CDN, so that one
-   feature still needs a connection the first time. Everything else — the
-   picture board, speech, letters, numbers and body parts — works offline. */
+   This means you never need to hard-refresh; you always get the latest version
+   automatically. Offline mode (picture board, speech, letters, numbers, body
+   parts) still works perfectly. Gesture Mode still needs a connection the first
+   time for the hand-tracking model. */
 
-const CACHE = 'myvoice-v1';
+const CACHE = 'myvoice-v2';
 const CORE = [
   './',
   './index.html',
@@ -33,16 +33,8 @@ self.addEventListener('activate', (e) => {
 self.addEventListener('fetch', (e) => {
   if (e.request.method !== 'GET') return;
 
-  // Serve the app shell from cache first so it starts instantly and offline.
-  if (CORE.some((path) => e.request.url.endsWith(path.replace('./', '')))) {
-    e.respondWith(
-      caches.match(e.request).then((hit) => hit || fetch(e.request))
-    );
-    return;
-  }
-
-  // Everything else (fonts, the hand-tracking model): try the network, fall
-  // back to whatever we cached last time.
+  // Network-first for everything: always try fresh from network,
+  // fall back to cache only when offline.
   e.respondWith(
     fetch(e.request)
       .then((res) => {
